@@ -30,6 +30,14 @@ void MyPrimitive::AddQuad(vector3 a_vBottomLeft, vector3 a_vBottomRight, vector3
 	AddVertexPosition(a_vBottomRight);
 	AddVertexPosition(a_vTopRight);
 }
+
+void MyPrimitive::AddTri(vector3 a_vBottomLeft, vector3 a_vBottomRight, vector3 a_vTop) {
+	AddVertexPosition(a_vBottomLeft);
+	AddVertexPosition(a_vBottomRight);
+	AddVertexPosition(a_vTop);
+}
+
+
 void MyPrimitive::GeneratePlane(float a_fSize, vector3 a_v3Color)
 {
 	if (a_fSize < 0.01f)
@@ -114,12 +122,82 @@ void MyPrimitive::GenerateCone(float a_fRadius, float a_fHeight, int a_nSubdivis
 	//3--2
 	//|  |
 	//0--1
-	vector3 point0(-fValue, -fValue, fValue); //0
-	vector3 point1(fValue, -fValue, fValue); //1
-	vector3 point2(fValue, fValue, fValue); //2
-	vector3 point3(-fValue, fValue, fValue); //3
 
-	AddQuad(point0, point1, point3, point2);
+	//*************************************************************************************************************************************
+
+	
+	std::vector<vector3>point;
+	//TRIvvv
+	//point.push_back(vector3(-fValue, -fValue, -fValue));//0
+	//point.push_back(vector3(-fValue, -fValue, -fValue));//1
+	//point.push_back(vector3(-fValue, -fValue, -fValue));//2
+	//
+	//AddTri(point[0], point[1], point[2]);
+	//TRI^^^
+
+	//*************************************************************************************************************************************
+	
+	//DYNAMICvvv
+	//for (int i = 0; i < a_nSubdivisions; i++) {
+	//	point.push_back(vector3(0, 0, 0));//0 yeah but how the fuck are we supposed to get the coords in?
+	//}
+	//DYNAMIC^^^
+
+	//*************************************************************************************************************************************
+
+	float theta = 0;
+	float steps = 2* PI / static_cast<float>(a_nSubdivisions);
+
+	point.push_back(vector3(0.0f, 0.0f, -a_fHeight/2));
+
+	//DYNAMICvvv
+	for (int i = 0; i < a_nSubdivisions; i++) {
+		point.push_back(vector3(cos(theta*-1), sin(theta*-1), a_fHeight/2));
+		theta += steps;
+	}
+
+	for (int i = 1; i < a_nSubdivisions; i++) {
+		AddTri(point[0], point[i], point[i+1]);
+	}
+
+	//AddTri(point[0], point[1], point[2]);
+	//AddTri(point[0], point[2], point[3]);
+	//AddTri(point[0], point[3], point[4]);
+	//AddTri(point[0], point[4], point[5]);
+
+	AddTri(point[0], point[a_nSubdivisions], point[1]);
+
+	for (int i = 0; i < a_nSubdivisions + 1; i++) {
+		point.pop_back();
+	}
+
+	//PART_TWO
+	point.push_back(vector3(0.0f, 0.0f, a_fHeight/2));
+
+	for (int i = 0; i < a_nSubdivisions; i++) {
+		point.push_back(vector3(cos(theta), sin(theta), a_fHeight/2));
+		theta += steps;
+	}
+
+	for (int i = 1; i < a_nSubdivisions; i++) {
+		AddTri(point[0], point[i], point[i + 1]);
+	}
+
+	AddTri(point[0], point[a_nSubdivisions], point[1]);
+
+	for (int i = 0; i < a_nSubdivisions+1; i++) {
+		point.pop_back();
+	}
+
+
+	//*************************************************************************************************************************************
+	
+	//vector3 point0(-fValue, -fValue, fValue); //0
+	//vector3 point1(fValue, -fValue, fValue); //1
+	//vector3 point2(fValue, fValue, fValue); //2
+	//vector3 point3(-fValue, fValue, fValue); //3
+
+	//AddQuad(point0, point1, point3, point2);
 
 	//Your code ends here
 	CompileObject(a_v3Color);
@@ -135,16 +213,65 @@ void MyPrimitive::GenerateCylinder(float a_fRadius, float a_fHeight, int a_nSubd
 	Init();
 
 	//Your code starts here
-	float fValue = 0.5f;
-	//3--2
-	//|  |
-	//0--1
-	vector3 point0(-fValue, -fValue, fValue); //0
-	vector3 point1(fValue, -fValue, fValue); //1
-	vector3 point2(fValue, fValue, fValue); //2
-	vector3 point3(-fValue, fValue, fValue); //3
+	std::vector<vector3>point;
 
-	AddQuad(point0, point1, point3, point2);
+	float theta = 0;
+	float steps = 2 * PI / static_cast<float>(a_nSubdivisions);
+
+	//BASE 1
+	point.push_back(vector3(0.0f, 0.0f, a_fHeight / 2));
+
+	for (int i = 0; i < a_nSubdivisions; i++) {
+		point.push_back(vector3(cos(theta), sin(theta), a_fHeight / 2));
+		theta += steps;
+	}
+
+	for (int i = 1; i < a_nSubdivisions; i++) {
+		AddTri(point[0], point[i], point[i + 1]);
+	}
+
+	AddTri(point[0], point[a_nSubdivisions], point[1]);
+
+	for (int i = 0; i < a_nSubdivisions+1; i++) {
+		point.pop_back();
+	}
+
+	//BASE 2
+	point.push_back(vector3(0.0f, 0.0f, -a_fHeight / 2));
+
+	for (int i = 0; i < a_nSubdivisions; i++) {
+		point.push_back(vector3(cos(-theta), sin(-theta), -a_fHeight / 2));
+		theta += steps;
+	}
+
+	for (int i = 1; i < a_nSubdivisions; i++) {
+		AddTri(point[0], point[i], point[i + 1]);
+	}
+
+	AddTri(point[0], point[a_nSubdivisions], point[1]);
+
+	for (int i = 0; i < a_nSubdivisions+1; i++) {
+		point.pop_back();
+	}
+
+	//ROUND BIT
+	for (int i = 0; i < a_nSubdivisions+1; i++) {
+		point.push_back(vector3(cos(theta), sin(theta), -a_fHeight / 2));
+		theta += steps;
+	}
+	for (int i = 0; i < a_nSubdivisions+1; i++) {
+		point.push_back(vector3(cos(theta), sin(theta), a_fHeight / 2));
+		theta += steps;
+	}
+
+	for (int i = 0; i < a_nSubdivisions+1; i++) {
+		//(vector3 a_vBottomLeft, vector3 a_vBottomRight, vector3 a_vTopLeft, vector3 a_vTopRight)
+		AddQuad(point[i], point[i+1], point[a_nSubdivisions + i], point[a_nSubdivisions + i + 1]);
+	}
+
+	for (int i = 0; i < a_nSubdivisions*2 + 2; i++) {
+		point.pop_back();
+	}
 
 	//Your code ends here
 	CompileObject(a_v3Color);
@@ -160,16 +287,86 @@ void MyPrimitive::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float
 	Init();
 
 	//Your code starts here
-	float fValue = 0.5f;
-	//3--2
-	//|  |
-	//0--1
-	vector3 point0(-fValue, -fValue, fValue); //0
-	vector3 point1(fValue, -fValue, fValue); //1
-	vector3 point2(fValue, fValue, fValue); //2
-	vector3 point3(-fValue, fValue, fValue); //3
+	std::vector<vector3>point;
 
-	AddQuad(point0, point1, point3, point2);
+	float theta = 0;
+	float steps = 2 * PI / static_cast<float>(a_nSubdivisions);
+
+	//BASE 1
+	for (int i = 0; i < a_nSubdivisions+1; i++) { //points for outer radius
+		point.push_back(vector3(cos(theta)*a_fOuterRadius, sin(theta)*a_fOuterRadius, a_fHeight / 2));
+		theta += steps;
+	}
+	for (int i = 0; i < a_nSubdivisions + 1; i++) { //points for inner radius
+		point.push_back(vector3(cos(theta)*a_fInnerRadius, sin(theta)*a_fInnerRadius, a_fHeight / 2));
+		theta += steps;
+	}
+
+	for (int i = 0; i < a_nSubdivisions+1; i++) { //AddQuad
+		AddQuad(point[i], point[i+1], point[a_nSubdivisions + i], point[a_nSubdivisions +i+1]);
+	}
+
+	for (int i = 0; i < a_nSubdivisions*2+2; i++) {
+		point.pop_back();
+	}
+
+	//BASE 2
+	for (int i = 0; i < a_nSubdivisions + 1; i++) { //points for outer radius
+		point.push_back(vector3(cos(-theta)*a_fOuterRadius, sin(-theta)*a_fOuterRadius, -a_fHeight / 2));
+		theta += steps;
+	}
+	for (int i = 0; i < a_nSubdivisions + 1; i++) { //points for inner radius
+		point.push_back(vector3(cos(-theta)*a_fInnerRadius, sin(-theta)*a_fInnerRadius, -a_fHeight / 2));
+		theta += steps;
+	}
+
+	for (int i = 0; i < a_nSubdivisions + 1; i++) { //AddQuad
+		AddQuad(point[i], point[i + 1], point[a_nSubdivisions + i], point[a_nSubdivisions + i + 1]);
+	}
+
+	for (int i = 0; i < a_nSubdivisions * 2 + 2; i++) {
+		point.pop_back();
+	}
+
+	//ROUND BIT OUTER
+	for (int i = 0; i < a_nSubdivisions + 1; i++) {
+		point.push_back(vector3(cos(theta)*a_fOuterRadius, sin(theta)*a_fOuterRadius, -a_fHeight / 2));
+		theta += steps;
+	}
+
+	for (int i = 0; i < a_nSubdivisions + 1; i++) {
+		point.push_back(vector3(cos(theta)*a_fOuterRadius, sin(theta)*a_fOuterRadius, a_fHeight / 2));
+		theta += steps;
+	}
+
+	for (int i = 0; i < a_nSubdivisions + 1; i++) {
+		//(vector3 a_vBottomLeft, vector3 a_vBottomRight, vector3 a_vTopLeft, vector3 a_vTopRight)
+		AddQuad(point[i], point[i + 1], point[a_nSubdivisions + i], point[a_nSubdivisions + i + 1]);
+	}
+
+	for (int i = 0; i < a_nSubdivisions * 2 + 2; i++) {
+		point.pop_back();
+	}
+
+	//ROUND BIT INNER
+	for (int i = 0; i < a_nSubdivisions + 1; i++) {
+		point.push_back(vector3(cos(-theta)*a_fInnerRadius, sin(-theta)*a_fInnerRadius, -a_fHeight / 2));
+		theta += steps;
+	}
+
+	for (int i = 0; i < a_nSubdivisions + 1; i++) {
+		point.push_back(vector3(cos(-theta)*a_fInnerRadius, sin(-theta)*a_fInnerRadius, a_fHeight / 2));
+		theta += steps;
+	}
+
+	for (int i = 0; i < a_nSubdivisions + 1; i++) {
+		//(vector3 a_vBottomLeft, vector3 a_vBottomRight, vector3 a_vTopLeft, vector3 a_vTopRight)
+		AddQuad(point[i], point[i + 1], point[a_nSubdivisions + i], point[a_nSubdivisions + i + 1]);
+	}
+
+	for (int i = 0; i < a_nSubdivisions * 2 + 2; i++) {
+		point.pop_back();
+	}
 
 	//Your code ends here
 	CompileObject(a_v3Color);
@@ -193,16 +390,33 @@ void MyPrimitive::GenerateTorus(float a_fOuterRadius, float a_fInnerRadius, int 
 	Init();
 
 	//Your code starts here
-	float fValue = 0.5f;
-	//3--2
-	//|  |
-	//0--1
-	vector3 point0(-fValue, -fValue, fValue); //0
-	vector3 point1(fValue, -fValue, fValue); //1
-	vector3 point2(fValue, fValue, fValue); //2
-	vector3 point3(-fValue, fValue, fValue); //3
+	std::vector<vector3>point;
 
-	AddQuad(point0, point1, point3, point2);
+	float thetaRight = 0.0f;
+	float thetaLeft = 0.0f;
+	float phiRight = 0.0f;
+	float phiLeft = 0.0f;
+
+	float r = a_fOuterRadius - a_fInnerRadius;
+	float R = a_fInnerRadius + r;
+
+	for (int j = 0; j < a_nSubdivisionsA; j++) {
+		phiRight = 2* PI*j / a_nSubdivisionsA;
+		phiLeft = 2*PI*(j + 1) / a_nSubdivisionsA;
+		for (int i = 0; i < a_nSubdivisionsB; i++) {
+			thetaRight = 2 * PI*i / a_nSubdivisionsB;
+			thetaLeft = 2 * PI*(i + 1) / a_nSubdivisionsB;
+
+			point.push_back(vector3((R+r*cos(thetaLeft))*cos(phiLeft), (R+r*cos(thetaLeft))*sin(phiLeft), r*sin(thetaLeft)));
+			point.push_back(vector3((R+r*cos(thetaLeft))*cos(phiRight), (R+r*cos(thetaLeft))*sin(phiRight), r*sin(thetaLeft)));
+			point.push_back(vector3((R+r*cos(thetaRight))*cos(phiLeft), (R + r*cos(thetaRight))*sin(phiLeft), r*sin(thetaRight)));
+			point.push_back(vector3((R + r*cos(thetaRight))*cos(phiRight), (R + r*cos(thetaRight))*sin(phiRight), r*sin(thetaRight)));
+
+			AddQuad(point[0], point[1], point[2], point[3]);
+
+			point._Pop_back_n(4);
+		}
+	}
 
 	//Your code ends here
 	CompileObject(a_v3Color);
@@ -215,23 +429,95 @@ void MyPrimitive::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a
 		GenerateCube(a_fRadius * 2, a_v3Color);
 		return;
 	}
-	if (a_nSubdivisions > 6)
-		a_nSubdivisions = 6;
+	if (a_nSubdivisions > 15)
+		a_nSubdivisions = 15;
 
 	Release();
 	Init();
 
 	//Your code starts here
-	float fValue = 0.5f;
-	//3--2
-	//|  |
-	//0--1
-	vector3 point0(-fValue, -fValue, fValue); //0
-	vector3 point1(fValue, -fValue, fValue); //1
-	vector3 point2(fValue, fValue, fValue); //2
-	vector3 point3(-fValue, fValue, fValue); //3
+	/*std::vector<vector3>point;
 
-	AddQuad(point0, point1, point3, point2);
+	float theta = 0;
+	float phi = 0;//idk
+	float steps = 2 * PI / static_cast<float>(a_nSubdivisions);
+
+	//BASE 1
+	point.push_back(vector3(0.0f, 0.0f, a_fRadius));
+
+	//for loop for the # of levels 
+	for (int i = 0; i < a_nSubdivisions+5; i++) {
+		//loop for rounds 
+		for (int i = 0; i < a_nSubdivisions; i++) {
+			point.push_back(vector3(a_fRadius* cos(theta)*sin(phi), a_fRadius*sin(theta)*sin(phi), a_fRadius *cos(phi)));
+			theta += steps;
+		}
+		phi += steps;
+	}
+
+	//top base bit 
+	for (int i = 1; i < a_nSubdivisions+1; i++) {
+		AddTri(point[0], point[i], point[i + 1]);
+	}
+
+	//middle bits that use quads
+	for (int i = 1; i < a_nSubdivisions; i++) {
+		for (int j= 1; j < a_nSubdivisions; j++) {
+			AddQuad(point[a_nSubdivisions * i + j + 1], point[a_nSubdivisions * i + j], point[a_nSubdivisions * i * 2 + j + 1], point[a_nSubdivisions * i * 2 + j]);
+		}
+	}
+	//AddQuad(point[a_nSubdivisions + 2], point[a_nSubdivisions + 1], point[a_nSubdivisions * 2 + 2], point[a_nSubdivisions * 2  + 1]);
+	//AddQuad(point[a_nSubdivisions + 4], point[a_nSubdivisions + 3], point[a_nSubdivisions * 2 + 4], point[a_nSubdivisions *2 + 3]);
+	//AddQuad(point[a_nSubdivisions + 6], point[a_nSubdivisions + 5], point[a_nSubdivisions * 2 + 6], point[a_nSubdivisions * 2 + 5]);
+	//AddQuad(point[a_nSubdivisions + 8], point[a_nSubdivisions + 7], point[a_nSubdivisions * 2 + 8], point[a_nSubdivisions * 2 + 7]);
+
+	//bottom base bit
+	for (int i = 0; i < a_nSubdivisions+1; i++) {
+		AddTri(point[0], point[a_nSubdivisions*a_nSubdivisions-a_nSubdivisions+i], point[a_nSubdivisions*a_nSubdivisions - a_nSubdivisions + i +1]);
+	}
+
+	//AddTri(point[0], point[a_nSubdivisions], point[1]);
+
+	for (int i = 0; i < a_nSubdivisions + 1; i++) {
+		point.pop_back();
+	}
+	*/
+	//well none of that ^^^ works :(
+
+
+
+	std::vector<vector3>point;
+
+	float theta = 0;
+	float steps = 2 * PI / static_cast<float>(a_nSubdivisions);
+
+	float thetaRight = 0.0f;
+	float thetaLeft = 0.0f;
+	float phiRight = 0.0f;
+	float phiLeft = 0.0f;
+
+	for (int j = 0; j < a_nSubdivisions; j++) {
+		phiRight = PI*j / a_nSubdivisions;
+		phiLeft = PI*(j + 1) / a_nSubdivisions;
+		for (int i = 0; i < a_nSubdivisions; i++) {
+			thetaRight = 2 * PI*i / a_nSubdivisions;
+			thetaLeft = 2 * PI*(i + 1) / a_nSubdivisions;
+
+			point.push_back(vector3(a_fRadius*cos(thetaLeft)*sin(phiLeft), a_fRadius*cos(phiLeft), a_fRadius*sin(thetaLeft)*sin(phiLeft)));
+			point.push_back(vector3(a_fRadius*cos(thetaLeft)*sin(phiRight), a_fRadius*cos(phiRight), a_fRadius*sin(thetaLeft)*sin(phiRight)));
+			point.push_back(vector3(a_fRadius*cos(thetaRight)*sin(phiLeft), a_fRadius*cos(phiLeft), a_fRadius*sin(thetaRight)*sin(phiLeft)));
+			point.push_back(vector3(a_fRadius*cos(thetaRight)*sin(phiRight), a_fRadius*cos(phiRight), a_fRadius*sin(thetaRight)*sin(phiRight)));
+
+			AddQuad(point[1], point[0], point[3], point[2]);
+
+			point._Pop_back_n(4);
+		}
+	}
+
+
+	
+
+
 
 	//Your code ends here
 	CompileObject(a_v3Color);
