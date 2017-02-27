@@ -7,6 +7,9 @@ void AppClass::InitWindow(String a_sWindowName)
 
 void AppClass::InitVariables(void)
 {
+	//Sets the camera
+	m_pCameraMngr->SetPositionTargetAndView(vector3(0.0f, 25.0f, 0.0f), vector3(0.0f, 0.0f, 0.0f), -REAXISZ);
+
 	m_m4Sun = IDENTITY_M4;
 	m_m4Earth = IDENTITY_M4;
 	m_m4Moon = IDENTITY_M4;
@@ -23,8 +26,6 @@ void AppClass::InitVariables(void)
 void AppClass::Update(void)
 {
 #pragma region Does not need changes
-	//Sets the camera
-	m_pCameraMngr->SetPositionTargetAndView(vector3(0.0f, 25.0f, 0.0f), vector3(0.0f, 0.0f, 0.0f), -REAXISZ);
 
 	//Update the system's time
 	m_pSystem->UpdateTime();
@@ -52,8 +53,24 @@ void AppClass::Update(void)
 	//Calculate the position of the Earth
 	m_m4Earth = glm::rotate(IDENTITY_M4, m_fEarthTimer, vector3(0.0f, 1.0f, 0.0f));
 
+	m_m4Earth *= distanceEarth;
+
+	m_m4Earth = glm::rotate(m_m4Earth, static_cast<float>(m_fEarthTimer * 28 * (2 * PI)), vector3(1.0f, 0.0f, 0.0f));
+
 	//Calculate the position of the Moon
-	m_m4Moon = glm::rotate(IDENTITY_M4, m_fMoonTimer, vector3(0.0f, 1.0f, 0.0f));
+	m_m4Moon = glm::rotate(IDENTITY_M4, m_fEarthTimer, vector3(0.0f, 1.0f, 0.0f));
+
+	m_m4Moon = (m_m4Moon * distanceEarth);
+
+	//spin around earth
+	m_m4Moon = glm::rotate(m_m4Moon, m_fMoonTimer, vector3(0.0f, 1.0f, 0.0f));
+
+
+	//axis spin
+	m_m4Moon *= distanceMoon;
+	//m_m4Moon = glm::rotate(m_m4Moon, m_fMoonTimer, vector3(0.0f, 1.0f, 0.0f));
+	m_m4Moon = glm::rotate(m_m4Moon, static_cast<float>(m_fEarthTimer * 28 * (2 * PI)), vector3(1.0f, 0.0f, 0.0f));
+	
 #pragma endregion
 
 #pragma region Print info
