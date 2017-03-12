@@ -14,6 +14,18 @@ void AppClass::InitVariables(void)
 	m_pMeshMngr->LoadModel("Sorted\\WallEye.bto", "WallEye");
 
 	fDuration = 1.0f;
+
+	positions.push_back(vector3(-4.0f, -2.0f, 5.0f));
+	positions.push_back(vector3(1.0f, -2.0f, 5.0f));
+	positions.push_back(vector3(-3.0f, -1.0f, 3.0f));
+	positions.push_back(vector3(2.0f, -1.0f, 3.0f));
+	positions.push_back(vector3(-2.0f, 0.0f, 0.0f));
+	positions.push_back(vector3(3.0f, 0.0f, 0.0f));
+	positions.push_back(vector3(-1.0f, 1.0f, -3.0f));
+	positions.push_back(vector3(4.0f, 1.0f, -3.0f));
+	positions.push_back(vector3(0.0f, 2.0f, -5.0f));
+	positions.push_back(vector3(5.0f, 2.0f, -5.0f));
+	positions.push_back(vector3(1.0f, 3.0f, -5.0f));
 }
 
 void AppClass::Update(void)
@@ -37,6 +49,71 @@ void AppClass::Update(void)
 
 #pragma region Your Code goes here
 	m_pMeshMngr->SetModelMatrix(IDENTITY_M4, "WallEye");
+
+	for (int i = 0; i < 11; i++) {
+		matrix4 m4SpherePosition = glm::translate(positions[i])* glm::scale(vector3(0.1f));
+
+		m_pMeshMngr->AddSphereToRenderList(m4SpherePosition, RERED, SOLID);
+	}
+
+	
+	static float fTimer = 0.0f;
+	static DWORD timerSinceBoot = GetTickCount(); //timer since the computer boot
+	DWORD timerSinceStart = GetTickCount() - timerSinceBoot; //current time - boot time
+	fTimer = timerSinceStart / 1000.0f; //was in milliseconds
+										//print info
+	m_pMeshMngr->PrintLine(""); //print emplty line purely for positioning 
+	m_pMeshMngr->Print("Time: "); //print
+	m_pMeshMngr->PrintLine(std::to_string(fTimer)); //print
+
+
+	static int posInt = 0;
+	static bool cycle = false;
+
+
+	static float OSMinInt = 0;
+	static float OSMaxInt = 5;
+
+	percentage = MapValue(fTimer, OSMinInt, OSMaxInt, 0.0f, 1.0f);
+	
+	if (percentage > 1.0f) {
+		percentage = 0.0f;
+		posInt++;
+		OSMinInt += 5;
+		OSMaxInt += 5;
+
+		cycle = false;
+	}
+
+	vector3 v3Start;
+	vector3 v3End;
+
+	if (posInt == 10 || cycle) {
+		
+		posInt = -1;
+
+		v3Start = positions[10];
+		v3End = positions[0];
+		cycle = true;
+	}
+	else {
+		v3Start = positions[posInt];
+		v3End = positions[posInt + 1];
+	}
+
+
+
+	vector3 v3Current = glm::lerp(v3Start, v3End, percentage);
+
+	matrix4 m4WallEye = glm::translate(v3Current);
+
+	m_pMeshMngr->SetModelMatrix(m4WallEye, "WallEye");
+
+	m_pMeshMngr->Print("Percentage: "); //print
+	m_pMeshMngr->PrintLine(std::to_string(percentage)); //print
+	
+
+
 #pragma endregion
 
 #pragma region Does not need changes but feel free to change anything here
