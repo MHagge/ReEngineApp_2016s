@@ -26,12 +26,40 @@ void AppClass::Update(void)
 		CameraRotation();
 
 	//Rotation matrices
+	/*
 	matrix4 rotX = glm::rotate(IDENTITY_M4, m_v3Orientation.x, REAXISX);
 	matrix4 rotY = glm::rotate(IDENTITY_M4, m_v3Orientation.y, REAXISY);
 	matrix4 rotZ = glm::rotate(IDENTITY_M4, m_v3Orientation.z, REAXISZ);
+	*/
+	//glm::quat x = glm::quat()
+
+	glm::quat rotX = glm::angleAxis(m_v3Orientation.x, REAXISX);
+	glm::quat rotY = glm::angleAxis(m_v3Orientation.y, REAXISY);
+	glm::quat rotZ = glm::angleAxis(m_v3Orientation.z, REAXISZ);
+
+
+	/*idk
+	// RotationAngle is in radians
+	float x = REAXISX * sin(m_v3Orientation.x / 2);
+	float y = REAXISY * sin(m_v3Orientation.y / 2);
+	float z = REAXISZ * sin(m_v3Orientation.z / 2);
+	float w = cos(RotationAngle / 2);//uhhhh nope
+
+	glm::quat myQuat = glm::quat(x, y, z, w);
+	
+
+	
+	//
+	vector3 EulerAngles(m_v3Orientation.x, m_v3Orientation.y, m_v3Orientation.z);
+	myQuat = glm::quat(EulerAngles);
+	//what a mess t.t
+	*/
+	
 
 	//linear combination
-	m_mToWorld = rotX * rotY * rotZ;
+	m_mToWorld = glm::toMat4(rotX * rotY * rotZ);
+
+	
 
 	//Setting the model matrix
 	m_pMeshMngr->SetModelMatrix(m_mToWorld, "Steve");
