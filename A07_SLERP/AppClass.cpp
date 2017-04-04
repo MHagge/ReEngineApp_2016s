@@ -47,17 +47,45 @@ void AppClass::Update(void)
 	float fEarthHalfRevTime = 0.5f * m_fDay; // Move for Half a day
 	float fMoonHalfOrbTime = 14.0f * m_fDay; //Moon's orbit is 28 earth days, so half the time for half a route
 
+	//make 2 quats to use
+	glm::quat quatStart = glm::angleAxis(0.0f, REAXISY);
+	glm::quat quatEnd = glm::angleAxis(359.0f, REAXISY);
+
+	float earthPercent = MapValue((float)fRunTime, 0.0f, (float)fEarthHalfOrbTime*2, 0.0f, 1.0f);
+	float moonPercent = MapValue((float)fRunTime, 0.0f, (float)fMoonHalfOrbTime * 2, 0.0f, 1.0f);
+
+	//
+	matrix4 earthMatrix = ToMatrix4(glm::mix(quatStart, quatEnd, earthPercent));
+	//translate
+	earthMatrix *= glm::translate(11.0f, 0.0f, 0.0f);
+	//scale
+	earthMatrix *= glm::scale(0.524f, 0.524f, 0.524f);
+
+	//moon
+	//matrix4 moonMatrix = ToMatrix4(glm::mix(quatStart, quatEnd, moonPercent));
+	matrix4 moonMatrix = earthMatrix;
+	moonMatrix *= ToMatrix4(glm::mix(quatStart, quatEnd, moonPercent));
+	//moonMatrix *= glm::translate(11.0f, 0.0f, 0.0f);
+	moonMatrix *= glm::translate(2.0f, 0.0f, 0.0f);
+	moonMatrix *= glm::scale(0.27f, 0.27f, 0.27f);
+	
+	//earth spin
+	glm::quat earthQuat = glm::mix(quatStart, quatEnd, MapValue((float)fRunTime, 0.0f, (float)fEarthHalfRevTime*2, 0.0f, 1.0f));//(float)fmod(fRunTime, 2*fEarthHalfRevTime));
+	earthMatrix *= ToMatrix4(earthQuat);
+
+	matrix4 sunMatrix = glm::scale(5.936f, 5.936f, 5.936f);
+
 	//Setting the matrices
-	m_pMeshMngr->SetModelMatrix(IDENTITY_M4, "Sun");
-	m_pMeshMngr->SetModelMatrix(IDENTITY_M4, "Earth");
-	m_pMeshMngr->SetModelMatrix(IDENTITY_M4, "Moon");
+	m_pMeshMngr->SetModelMatrix(sunMatrix, "Sun");
+	m_pMeshMngr->SetModelMatrix(earthMatrix, "Earth");
+	m_pMeshMngr->SetModelMatrix(moonMatrix, "Moon");
 
 	//Adds all loaded instance to the render list
 	m_pMeshMngr->AddInstanceToRenderList("ALL");
 
-	static int nEarthOrbits = 0;
-	static int nEarthRevolutions = 0;
-	static int nMoonOrbits = 0;
+	int nEarthOrbits = fRunTime/fEarthHalfOrbTime/2;
+	int nEarthRevolutions = fRunTime/fEarthHalfRevTime/2;
+	int nMoonOrbits = fRunTime/fMoonHalfOrbTime/2;
 
 	//Indicate the FPS
 	int nFPS = m_pSystem->GetFPS();
@@ -106,6 +134,8 @@ void AppClass::Display(void)
 	}
 	
 	m_pMeshMngr->Render(); //renders the render list
+
+	m_pMeshMngr->ClearRenderList();
 
 	m_pGLSystem->GLSwapBuffers(); //Swaps the OpenGL buffers
 }

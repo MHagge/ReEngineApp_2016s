@@ -13,39 +13,23 @@ void AppClass::Update(void)
 	static double dTotalTime = 0.0; //Total time of the simulation
 	double dDeltaTime = m_pSystem->LapClock(); //time difference between function calls
 	dTotalTime += dDeltaTime; //Incrementing the time differences 
-	static float restart = 0.0f;
-	restart += dDeltaTime;
 #pragma endregion
 #pragma region YOUR CODE GOES HERE
-	m_m4Steve = glm::mat4(1.0f); // same as m_m4Steve = IDENTITY_M4; setting the identity to steve
+	float fStartTime = 0.0f;
+	float fEndTime = 5.0f;
+	float fAngle = MapValue(static_cast<float>(dTotalTime), fStartTime, fEndTime, 0.0f, 360.0f);
+	m_m4Steve = glm::rotate(IDENTITY_M4, fAngle, REAXISZ);
 
-	//make 2 quats to use
-	glm::quat quatStart = glm::angleAxis(0.0f, REAXISZ);
-	glm::quat quatEnd = glm::angleAxis(359.9f, REAXISZ);
-
-
-	if (restart >= 5.0f) {
-		vector3 holder = start;
-		start = end;
-		end = holder;
-
-
-		restart = 0.0f;
+	static float fStartHeight = 0.0f;
+	static float fEndHeight = 5.0f;
+	float fPercent = MapValue(static_cast<float>(dTotalTime), fStartTime, fEndTime, 0.0f, 1.0f);
+	float fHeight = glm::lerp(fStartHeight, fEndHeight, fPercent);
+	m_m4Steve = m_m4Steve * glm::translate(vector3(0.0f, fHeight, 0.0f));
+	if (fPercent > 1.0f)
+	{
+		std::swap(fStartHeight, fEndHeight);
+		dTotalTime = 0.0;
 	}
-
-	//float percent = MapValue((float)(dTotalTime/dDeltaTime), 0.0f, (float)(1.0f / dDeltaTime), 0.0f, 0.2f);
-	float percent = MapValue((float)restart, 0.0f, 5.0f, 0.0f, 1.0f);
-
-	matrix4 matrix = ToMatrix4(glm::mix(quatStart, quatEnd, percent));
-
-
-	vector3 current = glm::lerp(start, end, percent);
-
-
-	matrix *= glm::translate(current);
-
-	m_m4Steve = matrix;
-
 #pragma endregion
 #pragma region DOES NOT NEED CHANGES
 	//Set the model matrix
@@ -62,7 +46,5 @@ void AppClass::Update(void)
 	m_pMeshMngr->PrintLine(std::to_string(dTotalTime), RERED);
 	m_pMeshMngr->Print("FPS:");
 	m_pMeshMngr->Print(std::to_string(nFPS), RERED);
-	m_pMeshMngr->Print("restart:");
-	m_pMeshMngr->Print(std::to_string(restart), RERED);
 #pragma endregion
 }

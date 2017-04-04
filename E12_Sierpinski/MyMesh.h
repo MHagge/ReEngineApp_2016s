@@ -119,6 +119,7 @@ public:
 	OUTPUT: ---
 	*/
 	virtual void Render(matrix4 a_mProjection, matrix4 a_mView, matrix4 a_mWorld);
+	virtual void RenderList(matrix4 a_mProjectionMatrix, matrix4 a_mViewMatrix, float* a_fMatrixArray, int a_nInstances);
 
 protected:
 	/*
