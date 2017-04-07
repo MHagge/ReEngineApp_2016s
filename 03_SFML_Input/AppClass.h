@@ -1,4 +1,3 @@
-
 /*----------------------------------------------
 Programmer: Alberto Bobadilla (labigm@gmail.com)
 Date: 2015/08
@@ -26,7 +25,7 @@ class AppClass : public ReEngAppClass
 	wiimote m_Wiimote[m_nWiimotes]; //For holding the wiimote controller
 	Controller m_eController = Controller::C_360;
 	uint m_uPad = 0;
-	
+
 public:
 	//Axis options
 	sf::Joystick::Axis m_eLeftTrigger = sf::Joystick::Axis::V;
@@ -34,7 +33,7 @@ public:
 
 	sf::Joystick::Axis m_eLeftThumbH = sf::Joystick::Axis::X;
 	sf::Joystick::Axis m_eLeftThumbV = sf::Joystick::Axis::Y;
-	
+
 	sf::Joystick::Axis m_eRightThumbH = sf::Joystick::Axis::Z;
 	sf::Joystick::Axis m_eRightThumbV = sf::Joystick::Axis::R;
 

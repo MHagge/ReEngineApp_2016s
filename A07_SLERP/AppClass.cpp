@@ -1,7 +1,7 @@
 #include "AppClass.h"
 void AppClass::InitWindow(String a_sWindowName)
 {
-	super::InitWindow("SLERP - YOUR USER NAME GOES HERE"); // Window Name
+	super::InitWindow("Camera - YOUR USER NAME GOES HERE"); // Window Name
 
 	//Setting the color to black
 	m_v4ClearColor = vector4(0.0f);
@@ -11,6 +11,11 @@ void AppClass::InitVariables(void)
 {
 	//Setting the position in which the camera is looking and its interest point
 	m_pCameraMngr->SetPositionTargetAndView(vector3(12.12f, 28.52f, 11.34f), ZERO_V3, REAXISY);
+
+	m_pCamera->SetPosition(vector3(0.0f, 0.0f, 20.0f));
+	//m_pCamera->ChangeRoll(135.0f);
+	m_pCamera->SetTarget(ZERO_V3);
+	m_pCamera->SetUp(vector3(0.0f, 1.0f, 0.0f));
 
 	//Setting the color to black
 	m_v4ClearColor = vector4(0.0f);
@@ -26,6 +31,8 @@ void AppClass::InitVariables(void)
 
 void AppClass::Update(void)
 {
+
+
 	//Update the system's time
 	m_pSystem->UpdateTime();
 
@@ -41,6 +48,9 @@ void AppClass::Update(void)
 	//Counting the cumulative time
 	static double fRunTime = 0.0f;
 	fRunTime += fCallTime;
+
+#pragma region 
+	//don't need any of this
 
 	//Earth Orbit
 	double fEarthHalfOrbTime = 182.5f * m_fDay; //Earths orbit around the sun lasts 365 days / half the time for 2 stops
@@ -110,6 +120,39 @@ void AppClass::Update(void)
 
 	m_pMeshMngr->Print("FPS:");
 	m_pMeshMngr->Print(std::to_string(nFPS), RERED);
+#pragma endregion
+	static float speed = 1.0f;
+
+	
+	
+	
+	/*
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) || sf::Keyboard::isKeyPressed(sf::Keyboard::RShift))
+		bModifier = true;
+
+	if (bModifier)
+		speed *= 10.0f;
+	*/
+	/*
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+		m_pCamera->MoveForward(speed);
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+		m_pCamera->MoveForward(-speed);
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+		m_pCamera->MoveSideways(-speed);
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+		m_pCamera->MoveSideways(speed);
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
+		m_pCamera->MoveVertical(-speed);
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::E))
+		m_pCamera->MoveVertical(speed);
+		*/
 }
 
 void AppClass::Display(void)
@@ -133,7 +176,12 @@ void AppClass::Display(void)
 		break;
 	}
 	
-	m_pMeshMngr->Render(); //renders the render list
+	//m_pMeshMngr->Render(); //renders the render list
+
+	//Render the grid based on the camera's mode:
+	PrimitiveClass cube = PrimitiveClass();
+	cube.GenerateCube(2.0f, RERED);
+	cube.Render(m_pCamera->GetProjection(false), m_pCamera->GetView(), IDENTITY_M4);
 
 	m_pMeshMngr->ClearRenderList();
 

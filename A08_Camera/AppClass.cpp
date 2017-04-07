@@ -12,6 +12,12 @@ void AppClass::InitVariables(void)
 	//Setting the position in which the camera is looking and its interest point
 	m_pCameraMngr->SetPositionTargetAndView(vector3(12.12f, 28.52f, 11.34f), ZERO_V3, REAXISY);
 
+	m_pCamera->SetPosition(vector3(0.0f, 0.0f, 20.0f));
+	//m_pCamera->ChangeRoll(135.0f);
+	m_pCamera->SetTarget(ZERO_V3);
+	m_pCamera->SetUp(vector3(0.0f, 1.0f, 0.0f));
+
+
 	//Setting the color to black
 	m_v4ClearColor = vector4(0.0f);
 
@@ -26,6 +32,8 @@ void AppClass::InitVariables(void)
 
 void AppClass::Update(void)
 {
+
+
 	//Update the system's time
 	m_pSystem->UpdateTime();
 
@@ -42,16 +50,19 @@ void AppClass::Update(void)
 	static double fRunTime = 0.0f;
 	fRunTime += fCallTime;
 
+#pragma region 
+	//don't need any of this
+
 	//Earth Orbit
 	double fEarthHalfOrbTime = 182.5f * m_fDay; //Earths orbit around the sun lasts 365 days / half the time for 2 stops
 	float fEarthHalfRevTime = 0.5f * m_fDay; // Move for Half a day
 	float fMoonHalfOrbTime = 14.0f * m_fDay; //Moon's orbit is 28 earth days, so half the time for half a route
 
-	//make 2 quats to use
+											 //make 2 quats to use
 	glm::quat quatStart = glm::angleAxis(0.0f, REAXISY);
 	glm::quat quatEnd = glm::angleAxis(359.0f, REAXISY);
 
-	float earthPercent = MapValue((float)fRunTime, 0.0f, (float)fEarthHalfOrbTime*2, 0.0f, 1.0f);
+	float earthPercent = MapValue((float)fRunTime, 0.0f, (float)fEarthHalfOrbTime * 2, 0.0f, 1.0f);
 	float moonPercent = MapValue((float)fRunTime, 0.0f, (float)fMoonHalfOrbTime * 2, 0.0f, 1.0f);
 
 	//
@@ -68,9 +79,9 @@ void AppClass::Update(void)
 	//moonMatrix *= glm::translate(11.0f, 0.0f, 0.0f);
 	moonMatrix *= glm::translate(2.0f, 0.0f, 0.0f);
 	moonMatrix *= glm::scale(0.27f, 0.27f, 0.27f);
-	
+
 	//earth spin
-	glm::quat earthQuat = glm::mix(quatStart, quatEnd, MapValue((float)fRunTime, 0.0f, (float)fEarthHalfRevTime*2, 0.0f, 1.0f));//(float)fmod(fRunTime, 2*fEarthHalfRevTime));
+	glm::quat earthQuat = glm::mix(quatStart, quatEnd, MapValue((float)fRunTime, 0.0f, (float)fEarthHalfRevTime * 2, 0.0f, 1.0f));//(float)fmod(fRunTime, 2*fEarthHalfRevTime));
 	earthMatrix *= ToMatrix4(earthQuat);
 
 	matrix4 sunMatrix = glm::scale(5.936f, 5.936f, 5.936f);
@@ -83,16 +94,16 @@ void AppClass::Update(void)
 	//Adds all loaded instance to the render list
 	m_pMeshMngr->AddInstanceToRenderList("ALL");
 
-	int nEarthOrbits = fRunTime/fEarthHalfOrbTime/2;
-	int nEarthRevolutions = fRunTime/fEarthHalfRevTime/2;
-	int nMoonOrbits = fRunTime/fMoonHalfOrbTime/2;
+	int nEarthOrbits = fRunTime / fEarthHalfOrbTime / 2;
+	int nEarthRevolutions = fRunTime / fEarthHalfRevTime / 2;
+	int nMoonOrbits = fRunTime / fMoonHalfOrbTime / 2;
 
 	//Indicate the FPS
 	int nFPS = m_pSystem->GetFPS();
 
 	//Print info on the screen
 	m_pMeshMngr->PrintLine(m_pSystem->GetAppName(), REYELLOW);
-	
+
 	m_pMeshMngr->Print("Time:");
 	m_pMeshMngr->PrintLine(std::to_string(fRunTime));
 
@@ -110,6 +121,36 @@ void AppClass::Update(void)
 
 	m_pMeshMngr->Print("FPS:");
 	m_pMeshMngr->Print(std::to_string(nFPS), RERED);
+#pragma endregion
+	static float speed = 1.0f;
+
+	/*
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) || sf::Keyboard::isKeyPressed(sf::Keyboard::RShift))
+	bModifier = true;
+
+	if (bModifier)
+	speed *= 10.0f;
+	*/
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+		m_pCamera->MoveForward(speed);
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+		m_pCamera->MoveForward(-speed);
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+		m_pCamera->MoveSideways(-speed);
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+		m_pCamera->MoveSideways(speed);
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
+		m_pCamera->MoveVertical(-speed);
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::E))
+		m_pCamera->MoveVertical(speed);
+
+
 }
 
 void AppClass::Display(void)
@@ -133,7 +174,13 @@ void AppClass::Display(void)
 		break;
 	}
 	
-	m_pMeshMngr->Render(); //renders the render list
+	//m_pMeshMngr->Render(); //renders the render list
+
+	//Render the grid based on the camera's mode:
+	PrimitiveClass cube = PrimitiveClass();
+	cube.GenerateCube(2.0f, RERED);
+	cube.Render(m_pCamera->GetProjection(false), m_pCamera->GetView(), IDENTITY_M4);
+
 
 	m_pMeshMngr->ClearRenderList();
 

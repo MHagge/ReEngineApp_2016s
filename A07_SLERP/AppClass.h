@@ -74,7 +74,8 @@ public:
 	ARGUMENTS: ---
 	OUTPUT: ---
 	*/
-	virtual void ProcessKeyboard(void) final;
+	virtual void Process
+		(void) final;
 	/*
 	USAGE: Manage the response of key presses and mouse position
 	ARGUMENTS: ---

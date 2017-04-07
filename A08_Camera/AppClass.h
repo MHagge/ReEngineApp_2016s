@@ -6,6 +6,7 @@ Date: 2015/09
 #define __APPLICATION_H_
 
 #include "RE\ReEngAppClass.h"
+#include "MyCamera.h"
 #include <SFML\Graphics.hpp>
 
 using namespace ReEng; //Using ReEng namespace to use all the classes in the dll
@@ -13,6 +14,7 @@ using namespace ReEng; //Using ReEng namespace to use all the classes in the dll
 class AppClass : public ReEngAppClass
 {
 	float m_fDay = 1.0f; //How much time in seconds a day lasts;
+	MyCamera* m_pCamera = new MyCamera();
 
 public:
 	typedef ReEngAppClass super;
